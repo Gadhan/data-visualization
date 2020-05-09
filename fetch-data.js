@@ -26,13 +26,14 @@ const req = https.request(options, res => {
     }
     var datum = new Date(Date.parse(dataObject.date))
     let timeStamp = datum.getTime()/1000;
+    let JSONstring = ',\'"sensor1": "' +dataObject.sensor1
+        +',"sensor2": "' + dataObject.sensor2
+        +',"sensor3": "' + dataObject.sensor3
+        +',"sensor4": "' + dataObject.sensor4 + '"}'
     console.log(dataObject.sensor2)
     pool.query(
     'INSERT INTO formatted(date, sensordata)VALUES('+timeStamp
-        +',"sensor1": '+dataObject.sensor1
-        +', "sensor2": '+dataObject.sensor2
-        +', "sensor3": '+dataObject.sensor3
-        +', "sensor4": '+dataObject.sensor4+'}',
+        + JSONstring + '\')',
     (err, res) => {
       fs.writeFile('log ' + date.getTime(),'DB failure\nErr:\n' + err + '\nRes:\n'+ res, function (err){
         if(err) throw err;
