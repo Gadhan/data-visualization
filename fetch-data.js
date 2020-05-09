@@ -1,6 +1,6 @@
 const https = require('https')
 const options = {
-  hostname: 'https://opendata.hopefully.works',
+  hostname: 'opendata.hopefully.works',
   port: 443,
   path: '/api/events',
   method: 'GET',
@@ -12,14 +12,31 @@ const pool = new Pool({
     ssl: process.env.DATABASE_URL ? true : false
 })
 
+var fs = require("fs")
+var date = new Date()
+
 const req = https.request(options, res => {
   console.log(`statusCode: ${res.statusCode}`)
 
-  res.on('data', d => {
+  res.on('data', data => {
+    try {
+      var dataObject = JSON.parse(data)
+    } catch(err) {
+      console.error(err)
+    }
+    var datum = new Date(Date.parse(dataObject.date))
+    let timeStamp = datum.getTime()/1000;
+    console.log(dataObject.sensor2)
     pool.query(
-    "INSERT INTO data(json)VALUES(d)",
+    'INSERT INTO formatted(date, sensordata)VALUES('+timeStamp
+        +',"sensor1": '+dataObject.sensor1
+        +', "sensor2": '+dataObject.sensor2
+        +', "sensor3": '+dataObject.sensor3
+        +', "sensor4": '+dataObject.sensor4+'}',
     (err, res) => {
-    console.log(err, res);
+      fs.writeFile('log ' + date.getTime(),'DB failure\nErr:\n' + err + '\nRes:\n'+ res, function (err){
+        if(err) throw err;
+      })
     pool.end();
     }
     )
@@ -27,7 +44,9 @@ const req = https.request(options, res => {
 })
 
 req.on('error', error => {
-  console.error(error)
+  fs.writeFile('log ' + date.getTime(),'GET failure: ' + error, function (err){
+    if(err) throw err;
+  })
 })
 
 req.end()
