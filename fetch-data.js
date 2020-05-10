@@ -30,7 +30,7 @@ const req = https.request(options, res => {
         +',"sensor2": "' + dataObject.sensor2
         +',"sensor3": "' + dataObject.sensor3
         +',"sensor4": "' + dataObject.sensor4 + '"}'
-    console.log(dataObject.sensor2)
+    console.log(JSONstring)
     pool.query(
     'INSERT INTO formatted(date, sensordata)VALUES('+timeStamp
         + JSONstring + '\')',
