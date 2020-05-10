@@ -1,10 +1,11 @@
 const https = require('https')
+
 const options = {
   hostname: 'opendata.hopefully.works',
   port: 443,
   path: '/api/events',
   method: 'GET',
-  headers: {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjQsImVtYWlsIjoibWlrYWVsdGlra2FAaG90bWFpbC5jb20iLCJpYXQiOjE1ODkwNDE3MjB9.iTx07sGK84Zs05ZJOvoF4kDWEN2BLqesYw9jFRxGjkg'}
+  headers: {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjQsImVtYWlsIjoibWlrYWVsdGlra2FAaG90bWFpbC5jb20iLCJpYXQiOjE1ODkxMjUzMDZ9.H7M4ZCFdRT6NACl5sR4-Bv_C_aNFrXsvZhoqK8D1_M0'}
 }
 const { Pool } = require("pg")
 const pool = new Pool({
@@ -12,10 +13,7 @@ const pool = new Pool({
     ssl: process.env.DATABASE_URL ? true : false
 })
 
-var fs = require("fs")
-var date = new Date()
-
-const req = https.request(options, res => {
+req = https.request(options, res => {
   console.log(`statusCode: ${res.statusCode}`)
 
   res.on('data', data => {
@@ -24,19 +22,17 @@ const req = https.request(options, res => {
     } catch(err) {
       console.error(err)
     }
-    var datum = new Date(Date.parse(dataObject.date))
-    let timeStamp = datum.getTime()/1000;
-    console.log(dataObject.sensor2)
+    const realdate = new Date().toString()
     pool.query(
-    'INSERT INTO formatted(date, sensordata)VALUES('+timeStamp
-        +',"sensor1": '+dataObject.sensor1
-        +', "sensor2": '+dataObject.sensor2
-        +', "sensor3": '+dataObject.sensor3
-        +', "sensor4": '+dataObject.sensor4+'}',
+    'INSERT INTO data(actualdate, date, sensor1, sensor2, sensor3, sensor4)VALUES(\''+ realdate
+        + '\', \'' + dataObject.date
+        + '\', \'' + dataObject.sensor1
+        + '\', \'' + dataObject.sensor2
+        + '\', \'' + dataObject.sensor3
+        + '\', \'' + dataObject.sensor4
+        + '\')',
     (err, res) => {
-      fs.writeFile('log ' + date.getTime(),'DB failure\nErr:\n' + err + '\nRes:\n'+ res, function (err){
-        if(err) throw err;
-      })
+      console.log(err, res)
     pool.end();
     }
     )
@@ -44,9 +40,7 @@ const req = https.request(options, res => {
 })
 
 req.on('error', error => {
-  fs.writeFile('log ' + date.getTime(),'GET failure: ' + error, function (err){
-    if(err) throw err;
-  })
+  console.log(error)
 })
 
 req.end()

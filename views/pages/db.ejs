@@ -6,16 +6,22 @@
 
 <body>
 
-<% include ../partials/nav.ejs %>
-
 <div class="container">
 <h2>Database Results</h2>
 
-<ul>
+<table>
+        <tr>
+                <th>Query time</th>
+                <th>date</th>
+                <th>sensor1</th>
+                <th>sensor2</th>
+                <th>sensor3</th>
+                <th>sensor4</th>
+        </tr>
     <% results.forEach(function(r) { %>
-        <li><%= r.id %> - <%= r.name %></li>
+                <tr><td><%= r.actualdate %></td><td><%= r.date %></td><td><%= r.sensor1 %></td><td><%= r.sensor2 %></td><td><%= r.sensor3 %></td><td><%= r.sensor4 %></td></tr>
     <% }); %>
-</ul>
+</table>
 
 </div>
 
